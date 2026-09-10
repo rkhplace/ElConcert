@@ -18,6 +18,8 @@ class CameraDirector {
   followLookHeight = 1.5;
   /** damping strength for the real camera chasing pos/look */
   stiffness = 4.5;
+  /** extra vertical FOV a scene wants added on top of the aspect baseline */
+  fovBoost = 0;
 
   private shakeAmt = 0;
   private shakeDecay = 1;

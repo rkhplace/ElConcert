@@ -14,6 +14,7 @@ import {
   say,
   wait,
   walkPlayerTo,
+  facePlayer,
   moveCamera,
   releasePlayer,
   veil,
@@ -28,6 +29,7 @@ import { PromptZone, ZGate } from "@/components/game/zones";
 
 const TICKET_POS: [number, number, number] = [3, 0, -47];
 const END_STAGE_Z = -122;
+const DANCE_Z = END_STAGE_Z + 16; // where she performs, well in front of the stage
 
 const NIGHT = new THREE.Color("#070a16");
 const DAWN = new THREE.Color("#cf9fae");
@@ -165,9 +167,10 @@ export default function NightWalkScene() {
     playerState.frozen = true;
     cameraMode("cutscene");
 
-    await walkPlayerTo(0, END_STAGE_Z + 14, { speed: 1.7 });
+    await walkPlayerTo(0, DANCE_Z, { speed: 1.7 });
+    await facePlayer(0, DANCE_Z + 20, 0.5); // turn to face the audience / camera (+Z)
     await moveCamera(
-      { pos: [6.5, 2.4, END_STAGE_Z + 24], look: [0, 1.4, END_STAGE_Z + 10] },
+      { pos: [1.4, 1.75, DANCE_Z + 6.5], look: [0, 1.2, DANCE_Z] },
       2,
     );
 
@@ -182,20 +185,21 @@ export default function NightWalkScene() {
 
     useGame.getState().setPlayerAnim("DANCE");
 
-    // slow cinematic orbit while she dances
-    const orbit = { a: 0 };
+    // gentle frontal drift — small arc + close radius so she stays large
+    // and centred on any aspect ratio (portrait phones included)
+    const orbit = { a: -0.18 };
     gsap.to(orbit, {
-      a: Math.PI * 1.2,
+      a: 0.18,
       duration: 9,
       ease: "sine.inOut",
       onUpdate: () => {
-        const r = 8;
+        const r = 6.4;
         cameraDirector.pos.set(
           Math.sin(orbit.a) * r,
-          2.2 + Math.sin(orbit.a * 2) * 0.5,
-          END_STAGE_Z + 12 + Math.cos(orbit.a) * r,
+          1.7 + Math.sin(orbit.a * 4) * 0.35,
+          DANCE_Z + Math.cos(orbit.a) * r,
         );
-        cameraDirector.look.set(0, 1.3, END_STAGE_Z + 10);
+        cameraDirector.look.set(0, 1.2, DANCE_Z);
       },
     });
 

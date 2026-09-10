@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useGame } from "@/game/state/gameState";
+import { playerState } from "@/game/state/playerState";
+import { cameraDirector } from "@/game/systems/cameraDirector";
 import { InputManager } from "@/game/input/InputManager";
 import { AudioManager } from "@/game/audio/AudioManager";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -45,6 +47,8 @@ export default function Experience() {
       w.__game = useGame;
       w.__input = InputManager;
       w.__audio = AudioManager;
+      w.__player = playerState;
+      w.__cam = cameraDirector;
     }
     if (
       params.get("reducedMotion") === "true" ||

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneEnv } from "@/hooks/useSceneEnv";
 import { useGame } from "@/game/state/gameState";
@@ -56,12 +56,9 @@ export default function JourneyScene() {
   useSceneEnv({ bg: "#060912", fogColor: "#0b1428", fogDensity: 0.028 });
   const setState = useGame((s) => s.setState);
   const setObjective = useGame((s) => s.setObjective);
-  const camera = useThree((s) => s.camera);
   const rig = useRef<THREE.Group>(null);
-  const streaks = useRef<THREE.Group>(null);
   const t0 = useRef(0);
   const done = useRef(false);
-  const baseFov = useRef(52);
 
   const lamps = useMemo(
     () =>
@@ -74,13 +71,17 @@ export default function JourneyScene() {
   );
   const cityLights = useMemo(
     () =>
-      Array.from({ length: 120 }, () => ({
-        x: (Math.random() - 0.5) * 200,
-        y: 1 + Math.random() * 26,
-        z: -10 - Math.random() * 320,
-        w: 0.35 + Math.random() * 1.7,
-        tone: Math.random() > 0.72 ? "#9ab8ff" : "#ffd9a8",
-      })),
+      Array.from({ length: 90 }, () => {
+        // keep them off the road corridor so they don't whoosh past the lens
+        const sideSign = Math.random() > 0.5 ? 1 : -1;
+        return {
+          x: sideSign * (18 + Math.random() * 120),
+          y: 3 + Math.random() * 24,
+          z: -50 - Math.random() * 300,
+          w: 0.4 + Math.random() * 1.8,
+          tone: Math.random() > 0.72 ? "#9ab8ff" : "#ffd9a8",
+        };
+      }),
     [],
   );
 
@@ -91,8 +92,8 @@ export default function JourneyScene() {
     playerState.frozen = true;
     t0.current = performance.now();
     done.current = false;
-    baseFov.current = (camera as THREE.PerspectiveCamera).fov ?? 52;
     cameraDirector.stiffness = 3.6;
+    cameraDirector.fovBoost = 0;
 
     let cancelled = false;
     (async () => {
@@ -109,13 +110,9 @@ export default function JourneyScene() {
 
     return () => {
       cancelled = true;
-      const cam = camera as THREE.PerspectiveCamera;
-      if (cam.isPerspectiveCamera) {
-        cam.fov = baseFov.current;
-        cam.updateProjectionMatrix();
-      }
+      cameraDirector.fovBoost = 0;
     };
-  }, [setObjective, camera]);
+  }, [setObjective]);
 
   useFrame(() => {
     if (!rig.current) return;
@@ -143,29 +140,16 @@ export default function JourneyScene() {
     AudioManager.setEngineRpm(clamp(rpm, 0, 1));
 
     // chase camera — mostly low behind, slow drift to a 3/4 angle and back
-    const angle = Math.sin(elapsed * 0.28) * 0.6;
+    const angle = Math.sin(elapsed * 0.28) * 0.55;
     cameraDirector.pos.set(
-      weave + Math.sin(angle) * 3.4,
-      1.55 + Math.sin(elapsed * 0.9) * 0.22,
-      z + 5.4 + Math.cos(angle) * 1.6,
+      weave + Math.sin(angle) * 3.2,
+      1.55 + Math.sin(elapsed * 0.9) * 0.2,
+      z + 5.6 + Math.cos(angle) * 1.4,
     );
     cameraDirector.look.set(weave * 0.6, 1.05, z - 7);
 
-    const cam = camera as THREE.PerspectiveCamera;
-    if (cam.isPerspectiveCamera) {
-      const targetFov = baseFov.current + speed * 12;
-      cam.fov += (targetFov - cam.fov) * 0.08;
-      cam.updateProjectionMatrix();
-    }
-
-    if (streaks.current) {
-      streaks.current.position.z = z;
-      streaks.current.children.forEach((c, i) => {
-        const m = (c as THREE.Sprite).material as THREE.SpriteMaterial;
-        m.opacity = speed * (0.1 + (i % 3) * 0.04);
-        c.scale.y = 2 + speed * 6;
-      });
-    }
+    // speed sells through a gentle fov widen, no on-screen streaks
+    cameraDirector.fovBoost = speed * 9;
 
     if (p >= 1 && !done.current) {
       done.current = true;
@@ -187,43 +171,45 @@ export default function JourneyScene() {
         <planeGeometry args={[10, DISTANCE + 140]} />
         <meshStandardMaterial color="#0f121c" roughness={0.85} metalness={0.1} />
       </mesh>
-      {Array.from({ length: 80 }, (_, i) => (
-        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 6 - i * 6]}>
-          <planeGeometry args={[0.2, 2.6]} />
-          <meshStandardMaterial color="#5a6180" emissive="#5a6180" emissiveIntensity={0.7} toneMapped={false} />
+      {Array.from({ length: 44 }, (_, i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 6 - i * 11]}>
+          <planeGeometry args={[0.22, 3.4]} />
+          <meshStandardMaterial
+            color="#4c5372"
+            emissive="#4c5372"
+            emissiveIntensity={0.5}
+            toneMapped={false}
+          />
         </mesh>
       ))}
-      {/* edge reflectors */}
-      {Array.from({ length: 60 }).flatMap((_, i) =>
-        [-4.6, 4.6].map((x) => (
-          <mesh key={`${i}-${x}`} position={[x, 0.06, 4 - i * 8]}>
-            <boxGeometry args={[0.08, 0.08, 0.08]} />
-            <meshStandardMaterial
-              color="#ffb060"
-              emissive="#ffb060"
-              emissiveIntensity={2}
-              toneMapped={false}
-            />
-          </mesh>
-        )),
-      )}
 
       <hemisphereLight args={["#1e2c4e", "#04060c", 0.5]} />
       <ambientLight intensity={0.12} />
 
       {/* streetlamps streaming past */}
       {lamps.map((l, i) => (
-        <group key={i} position={[5.6 * l.side, 0, l.z]}>
+        <group key={i} position={[5.8 * l.side, 0, l.z]}>
           <mesh position={[0, 3, 0]}>
-            <cylinderGeometry args={[0.06, 0.08, 6, 5]} />
-            <meshStandardMaterial color="#171b24" />
+            <cylinderGeometry args={[0.09, 0.11, 6, 6]} />
+            <meshStandardMaterial color="#1b202b" />
           </mesh>
-          <mesh position={[-0.7 * l.side, 5.9, 0]}>
-            <boxGeometry args={[0.34, 0.14, 0.34]} />
-            <meshStandardMaterial color={l.tone} emissive={l.tone} emissiveIntensity={3.4} toneMapped={false} />
+          <mesh position={[-0.8 * l.side, 5.9, 0]}>
+            <boxGeometry args={[0.36, 0.16, 0.36]} />
+            <meshStandardMaterial
+              color={l.tone}
+              emissive={l.tone}
+              emissiveIntensity={3}
+              toneMapped={false}
+            />
           </mesh>
-          <sprite position={[-0.7 * l.side, 5.9, 0]} scale={[3.4, 3.4, 1]}>
-            <spriteMaterial color={l.tone} transparent opacity={0.2} depthWrite={false} blending={THREE.AdditiveBlending} />
+          <sprite position={[-0.8 * l.side, 5.9, 0]} scale={[3.6, 3.6, 1]}>
+            <spriteMaterial
+              color={l.tone}
+              transparent
+              opacity={0.22}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
           </sprite>
         </group>
       ))}
@@ -243,19 +229,6 @@ export default function JourneyScene() {
       <group ref={rig} position={[0, 0, 0]}>
         <Motorcycle headlight taillight />
         <Rider colors={{ top: "#c9d7ff", hair: "#241c2b", leg: "#39457a" }} />
-      </group>
-
-      {/* speed streaks that follow the camera end of the rig */}
-      <group ref={streaks} position={[0, 0, 0]}>
-        {Array.from({ length: 10 }, (_, i) => (
-          <sprite
-            key={i}
-            position={[(i - 4.5) * 0.9, 1 + (i % 3) * 0.6, 4.5]}
-            scale={[0.05, 3, 1]}
-          >
-            <spriteMaterial color="#d8e6ff" transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
-          </sprite>
-        ))}
       </group>
     </group>
   );
