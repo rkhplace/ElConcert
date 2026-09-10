@@ -26,7 +26,8 @@ export default function EndScreen() {
     AudioManager.blip("soft");
     AudioManager.setMuted(true);
     if (typeof window !== "undefined") {
-      window.location.href = "about:blank";
+      // calm exit — back to the title
+      window.location.assign(window.location.pathname);
     }
   };
 
