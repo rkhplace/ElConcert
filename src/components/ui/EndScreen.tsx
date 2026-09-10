@@ -66,10 +66,6 @@ export default function EndScreen() {
                 Exit
               </button>
             </div>
-
-            <p className="text-[10px] uppercase tracking-[0.35em] text-white/20">
-              Made with a little bit of code
-            </p>
           </motion.div>
         </motion.div>
       )}
