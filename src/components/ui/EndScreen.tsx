@@ -49,7 +49,7 @@ export default function EndScreen() {
             className="flex flex-col items-center gap-8"
           >
             <p className="max-w-md font-light leading-relaxed text-white/80" style={{ fontSize: "clamp(1rem, 2.4vw, 1.35rem)" }}>
-              Next time, stay until the last song.
+              See you at the next one, Elvira.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">

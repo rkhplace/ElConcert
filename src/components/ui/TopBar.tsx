@@ -14,14 +14,14 @@ export default function TopBar() {
   if (!started) return null;
 
   return (
-    <div className="safe-right fixed right-0 top-0 z-30 flex items-center gap-1.5 p-4">
+    <div className="safe-right fixed right-0 top-0 z-30 flex items-center gap-2 p-3 sm:p-4">
       <button
         onClick={() => setReducedMotion(!reducedMotion)}
         title="Reduced motion"
-        className={`rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors ${
+        className={`rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] backdrop-blur-sm transition-colors ${
           reducedMotion
             ? "border-white/50 bg-white/10 text-white/80"
-            : "border-white/15 bg-black/20 text-white/45 hover:text-white/70"
+            : "border-white/15 bg-black/25 text-white/45 hover:text-white/70"
         }`}
       >
         motion
@@ -33,7 +33,7 @@ export default function TopBar() {
         }}
         title="Mute"
         aria-label={muted ? "Unmute" : "Mute"}
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-black/20 text-white/60 backdrop-blur-sm transition-colors hover:text-white/90"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/25 text-white/60 backdrop-blur-sm transition-colors hover:text-white/90"
       >
         {muted ? (
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

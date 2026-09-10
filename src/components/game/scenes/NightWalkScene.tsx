@@ -208,9 +208,16 @@ export default function NightWalkScene() {
     await wait(1.6);
     useGame.getState().setPlayerAnim(null);
 
-    await say(["Maybe it was just postponed."], { pace: 2800 });
+    await say(["Maybe it was just postponed."], { pace: 2600 });
+    await wait(0.5);
+
+    // a small personal note to close on
+    await say(["Hey, Elvira."], { pace: 1900 });
+    await say(["Tonight didn't really land — I know."], { pace: 2700 });
+    await say(["So Rakha's asking: come hang out again?"], { pace: 2900 });
+    await say(["Next time we stay till the last song."], { pace: 3000 });
     await wait(0.4);
-    AudioManager.setMusicLevel(0.4, 3);
+    AudioManager.setMusicLevel(0.42, 3);
     setState("FINISHED");
   };
 

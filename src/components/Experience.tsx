@@ -25,9 +25,11 @@ const GameCanvas = dynamic(() => import("@/components/game/GameCanvas"), {
 export default function Experience() {
   const started = useGame((s) => s.started);
   const debug = useGame((s) => s.debug);
+  const state = useGame((s) => s.state);
   const setDebug = useGame((s) => s.setDebug);
   const setReducedMotion = useGame((s) => s.setReducedMotion);
   const [touch, setTouch] = useState(false);
+  const [idleCursor, setIdleCursor] = useState(false);
 
   useEffect(() => {
     // input capability
@@ -52,8 +54,32 @@ export default function Experience() {
     }
   }, [setDebug, setReducedMotion]);
 
+  // hide the OS cursor during play; reveal it briefly on mouse movement
+  useEffect(() => {
+    if (!started || touch) {
+      setIdleCursor(false);
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout>;
+    const wake = () => {
+      setIdleCursor(false);
+      clearTimeout(timer);
+      timer = setTimeout(() => setIdleCursor(true), 2200);
+    };
+    wake();
+    window.addEventListener("pointermove", wake);
+    return () => {
+      window.removeEventListener("pointermove", wake);
+      clearTimeout(timer);
+    };
+  }, [started, touch]);
+
   return (
-    <div className="relative h-full w-full overflow-hidden bg-night-900">
+    <div
+      className={`relative h-full w-full overflow-hidden bg-night-900 ${
+        idleCursor && state !== "FINISHED" ? "cursor-none" : ""
+      }`}
+    >
       <GameCanvas />
 
       <GameHUD />
