@@ -102,12 +102,12 @@ export default function KatapangScene() {
 
   return (
     <group>
-      <Ground size={400} color="#0a0f1e" />
+      <Ground size={400} color="#151b30" />
 
       {/* road surface strip */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -20]}>
         <planeGeometry args={[7, 90]} />
-        <meshStandardMaterial color="#12151f" roughness={0.9} />
+        <meshStandardMaterial color="#1e2230" roughness={0.9} />
       </mesh>
       {Array.from({ length: 10 }, (_, i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 4 - i * 7]}>
@@ -116,14 +116,20 @@ export default function KatapangScene() {
         </mesh>
       ))}
 
-      <hemisphereLight args={["#2a3a63", "#06080f", 0.65]} />
-      <directionalLight position={[6, 12, 4]} intensity={0.38} color="#9fb2e6" castShadow />
-      <ambientLight intensity={0.18} />
+      <hemisphereLight args={["#44568c", "#0c1020", 1.05]} />
+      <directionalLight position={[6, 12, 4]} intensity={0.75} color="#b6c6ec" castShadow />
+      <ambientLight intensity={0.4} />
+      {/* moonlit key from the other side so silhouettes read */}
+      <directionalLight position={[-8, 9, -6]} intensity={0.35} color="#8aa0d8" />
 
-      <StreetLamp position={[4.5, 0, 0]} light tone="#f0c27b" />
-      <StreetLamp position={[-4.5, 0, -16]} light tone="#f0c27b" />
-      <StreetLamp position={[4.5, 0, -32]} tone="#f0c27b" />
-      <StreetLamp position={[-4.5, 0, -48]} tone="#f0c27b" />
+      <StreetLamp position={[4.5, 0, 0]} light tone="#f7cf95" />
+      <StreetLamp position={[-4.5, 0, -16]} light tone="#f7cf95" />
+      <StreetLamp position={[4.5, 0, -32]} light tone="#f7cf95" />
+      <StreetLamp position={[-4.5, 0, -48]} tone="#f7cf95" />
+
+      {/* warm pool of light on the motorcycle so it's clearly there */}
+      <pointLight position={[BIKE[0] + 0.4, 2.2, BIKE[2] + 0.6]} color="#ffdca6" intensity={16} distance={9} decay={2} />
+      <pointLight position={[BIKE[0] - 1.2, 1, BIKE[2] - 0.8]} color="#9fb6f0" intensity={6} distance={7} decay={2} />
 
       <LowBuilding position={[-11, 0, -6]} size={[7, 8, 8]} seed={2} />
       <LowBuilding position={[12, 0, -14]} size={[8, 12, 7]} seed={5} />

@@ -17,7 +17,6 @@ import TopBar from "@/components/ui/TopBar";
 import DebugPanel from "@/components/ui/DebugPanel";
 import EndScreen from "@/components/ui/EndScreen";
 import Veil from "@/components/ui/Veil";
-import RotateHint from "@/components/ui/RotateHint";
 
 // the WebGL canvas is client-only
 const GameCanvas = dynamic(() => import("@/components/game/GameCanvas"), {
@@ -94,7 +93,6 @@ export default function Experience() {
       <InteractionButton touch={touch} />
       <EndScreen />
       <Veil />
-      <RotateHint />
       <DebugPanel />
       <LoadingScreen />
     </div>

@@ -164,7 +164,7 @@ export default function JourneyScene() {
 
   return (
     <group>
-      <Ground size={600} color="#080b16" />
+      <Ground size={600} color="#111728" />
 
       {/* road */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -DISTANCE / 2]}>
@@ -183,8 +183,9 @@ export default function JourneyScene() {
         </mesh>
       ))}
 
-      <hemisphereLight args={["#1e2c4e", "#04060c", 0.5]} />
-      <ambientLight intensity={0.12} />
+      <hemisphereLight args={["#38477a", "#080b14", 0.8]} />
+      <ambientLight intensity={0.24} />
+      <directionalLight position={[-6, 10, 4]} intensity={0.28} color="#9fb2e6" />
 
       {/* streetlamps streaming past */}
       {lamps.map((l, i) => (

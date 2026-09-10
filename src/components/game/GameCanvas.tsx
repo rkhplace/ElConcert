@@ -30,7 +30,7 @@ export default function GameCanvas() {
         antialias: true,
         powerPreference: "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.18,
+        toneMappingExposure: 1.42,
       }}
       camera={{ fov: 52, near: 0.1, far: 1000, position: [0, 3, 8] }}
       onCreated={({ gl }) => {

@@ -32,6 +32,101 @@ import { ProximityTrigger, ZGate } from "@/components/game/zones";
 
 const STAGE_Z = -94;
 const FRIEND_POS: [number, number, number] = [2.4, 0, -74];
+const EXIT_GATE_Z = -13;
+
+/** A lit EXIT arch + a running trail of floor chevrons that switch on
+ *  during the walk-out so the way back is unmistakable. */
+function ExitGate({ active }: { active: boolean }) {
+  const beacon = useRef<THREE.PointLight>(null);
+  const arrows = useRef<THREE.Group>(null);
+  const t = useRef(0);
+
+  useFrame((_, delta) => {
+    t.current += Math.min(delta, 1 / 20);
+    if (beacon.current) {
+      beacon.current.intensity = active ? 16 + Math.sin(t.current * 4) * 7 : 1.5;
+    }
+    if (arrows.current) {
+      arrows.current.children.forEach((c, i) => {
+        const m = (c as THREE.Mesh).material as THREE.MeshStandardMaterial;
+        // a pulse that travels toward the exit (+Z)
+        const phase = (t.current * 2.2 - i * 0.55) % 4;
+        const lit = phase > 0 && phase < 0.9;
+        m.opacity = active ? (lit ? 0.95 : 0.28) : 0;
+        m.emissiveIntensity = active ? (lit ? 3.4 : 0.8) : 0;
+      });
+    }
+  });
+
+  const barMat = (
+    <meshStandardMaterial
+      color="#123a24"
+      emissive="#46e58f"
+      emissiveIntensity={active ? 1.6 : 0.5}
+      toneMapped={false}
+    />
+  );
+
+  return (
+    <group>
+      {[-3.6, 3.6].map((x) => (
+        <mesh key={x} position={[x, 2.1, EXIT_GATE_Z]} castShadow>
+          <boxGeometry args={[0.5, 4.2, 0.5]} />
+          {barMat}
+        </mesh>
+      ))}
+      <mesh position={[0, 4.3, EXIT_GATE_Z]}>
+        <boxGeometry args={[8, 0.55, 0.5]} />
+        {barMat}
+      </mesh>
+      <SignBoard
+        position={[0, 4.3, EXIT_GATE_Z - 0.35]}
+        rotation={[0, Math.PI, 0]}
+        text="EXIT"
+        tone="#7cffc0"
+        scale={0.44}
+      />
+      <sprite position={[0, 3.4, EXIT_GATE_Z]} scale={[12, 6, 1]}>
+        <spriteMaterial
+          color="#46e58f"
+          transparent
+          opacity={active ? 0.18 : 0.06}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </sprite>
+      <pointLight
+        ref={beacon}
+        position={[0, 3, EXIT_GATE_Z]}
+        color="#7cffc0"
+        intensity={1.5}
+        distance={26}
+        decay={2}
+      />
+
+      {/* running floor chevrons from the crowd back to the arch */}
+      <group ref={arrows}>
+        {Array.from({ length: 13 }, (_, i) => (
+          <mesh
+            key={i}
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, 0.06, EXIT_GATE_Z - 5 - i * 4.4]}
+          >
+            <planeGeometry args={[1.7, 0.55]} />
+            <meshStandardMaterial
+              color="#7cffc0"
+              emissive="#7cffc0"
+              emissiveIntensity={0}
+              transparent
+              opacity={0}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
 
 export default function VenueScene() {
   useSceneEnv({ bg: "#0a0e1e", fogColor: "#111a34", fogDensity: 0.02 });
@@ -162,7 +257,7 @@ export default function VenueScene() {
 
     // hand control back for the walk out
     setState("EXIT");
-    setObjective("Head back to the exit");
+    setObjective("Follow the lights to the EXIT");
     useGame.getState().setPlayerAnim(null);
     cameraMode("follow");
     releasePlayer();
@@ -209,7 +304,7 @@ export default function VenueScene() {
 
   return (
     <group>
-      <Ground size={400} color="#0a1020" />
+      <Ground size={400} color="#141b30" />
 
       {/* ---------------- arrival plaza ---------------- */}
       <group position={[0, 0, -6]}>
@@ -241,9 +336,10 @@ export default function VenueScene() {
       </group>
 
       {/* ---------------- concert bowl ---------------- */}
-      <hemisphereLight args={["#31406f", "#06080f", 0.55]} />
-      <ambientLight intensity={0.2} />
-      <directionalLight position={[10, 18, 6]} intensity={0.32} color="#9fb2e6" castShadow />
+      <hemisphereLight args={["#42528a", "#0b0f1c", 0.9]} />
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[10, 18, 6]} intensity={0.55} color="#aebfe8" castShadow />
+      <directionalLight position={[-10, 10, -8]} intensity={0.3} color="#8aa0d8" />
 
       <ConcertStage position={[0, 0, STAGE_Z]} level={() => stageLevel.current} />
 
@@ -264,6 +360,8 @@ export default function VenueScene() {
       <AmbientDust count={200} area={70} height={16} color="#8fa8e0" />
 
       <Friend ref={friend} position={FRIEND_POS} rotation={Math.PI} />
+
+      <ExitGate active={state === "EXIT"} />
 
       {/* ---------------- triggers ---------------- */}
       <ZGate z={-26} dir={-1} onCross={startConcert} enabled={entered && state === "EXPLORE_VENUE"} />

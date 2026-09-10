@@ -246,7 +246,7 @@ export default function NightWalkScene() {
 
   return (
     <group>
-      <Ground size={420} color="#0a0f1e" />
+      <Ground size={420} color="#151b30" />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -60]}>
         <planeGeometry args={[8, 200]} />
         <meshStandardMaterial color="#12151f" roughness={0.92} />
@@ -298,20 +298,21 @@ function DawnLights({ getD }: { getD: () => number }) {
   const amb = useRef<THREE.HemisphereLight>(null);
   useFrame(() => {
     const d = getD();
-    if (key.current) key.current.intensity = 0.35 + d * 1.2;
-    if (amb.current) amb.current.intensity = 0.5 + d * 0.6;
+    if (key.current) key.current.intensity = 0.55 + d * 1.3;
+    if (amb.current) amb.current.intensity = 0.8 + d * 0.6;
   });
   return (
     <>
-      <hemisphereLight ref={amb} args={["#31406f", "#0b0b14", 0.5]} />
+      <hemisphereLight ref={amb} args={["#43538c", "#0e0e18", 0.8]} />
       <directionalLight
         ref={key}
         position={[8, 14, 10]}
-        intensity={0.35}
+        intensity={0.55}
         color="#ffd9b0"
         castShadow
       />
-      <ambientLight intensity={0.18} />
+      <directionalLight position={[-9, 9, -6]} intensity={0.3} color="#8aa0d8" />
+      <ambientLight intensity={0.32} />
     </>
   );
 }

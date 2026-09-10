@@ -20,9 +20,9 @@ const Motorcycle = forwardRef<THREE.Group, MotorcycleProps>(function Motorcycle(
   { headlight = false, taillight = true, ...groupProps },
   ref,
 ) {
-  const body = <meshStandardMaterial color="#1c2030" roughness={0.5} metalness={0.35} />;
-  const chrome = <meshStandardMaterial color="#69727f" roughness={0.25} metalness={0.85} />;
-  const rubber = <meshStandardMaterial color="#0b0d12" roughness={0.9} />;
+  const body = <meshStandardMaterial color="#39415f" roughness={0.45} metalness={0.4} />;
+  const chrome = <meshStandardMaterial color="#9aa4b6" roughness={0.22} metalness={0.9} />;
+  const rubber = <meshStandardMaterial color="#171a22" roughness={0.85} />;
 
   return (
     <group ref={ref} dispose={null} {...groupProps}>
@@ -59,7 +59,7 @@ const Motorcycle = forwardRef<THREE.Group, MotorcycleProps>(function Motorcycle(
       {/* fuel tank */}
       <mesh castShadow position={[0, 0.82, -0.12]}>
         <boxGeometry args={[0.3, 0.26, 0.58]} />
-        <meshStandardMaterial color="#2f3a5c" roughness={0.35} metalness={0.5} />
+        <meshStandardMaterial color="#4a5680" roughness={0.3} metalness={0.55} />
       </mesh>
       {/* seat */}
       <mesh castShadow position={[0, 0.8, 0.42]}>

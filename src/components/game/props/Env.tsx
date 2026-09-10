@@ -48,14 +48,14 @@ export function StreetLamp({
       </mesh>
       <mesh position={[0.7, height - 0.2, 0]}>
         <boxGeometry args={[0.34, 0.16, 0.34]} />
-        <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={2.2} />
+        <meshStandardMaterial color={tone} emissive={tone} emissiveIntensity={2.6} toneMapped={false} />
       </mesh>
       {/* fake glow */}
-      <sprite position={[0.7, height - 0.2, 0]} scale={[3.2, 3.2, 1]}>
+      <sprite position={[0.7, height - 0.2, 0]} scale={[3.4, 3.4, 1]}>
         <spriteMaterial
           color={tone}
           transparent
-          opacity={0.16}
+          opacity={0.2}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
@@ -64,8 +64,8 @@ export function StreetLamp({
         <pointLight
           position={[0.7, height - 0.35, 0]}
           color={tone}
-          intensity={18}
-          distance={14}
+          intensity={32}
+          distance={20}
           decay={2}
           castShadow={false}
         />
